@@ -10,7 +10,5 @@ public record BatchRun(
         int totalUsers,
         long totalFilesSeen,
         long totalBytesSeen,
-        long totalFilesMoved,
-        long totalFilesFailed,
         BatchStatus status
 ) {}

@@ -1,5 +1,6 @@
 package com.darkop.nas.app;
 
+import com.darkop.nas.db.PersistenceService;
 import com.darkop.nas.fs.UploadScanner;
 import com.darkop.nas.model.BatchRun;
 import com.darkop.nas.model.BatchStatus;
@@ -17,70 +18,68 @@ public class Main {
 
         if (args.length != 1) {
             System.err.println("Usage: java -jar nas-media-batch.jar <uploads-root>");
-            
             System.exit(1);
         }
 
         Path uploadsRoot = Path.of(args[0]);
-        LocalDateTime batchStart = LocalDateTime.now(), batchEnd;
+
+        LocalDateTime batchStart = LocalDateTime.now();
+        LocalDateTime batchEnd;
 
         int totalUsersSeen = 0;
-        
-        long totalFilesSeen = 0, totalBytesSeen = 0, totalFilesMoved = 0, totalFilesFailed = 0;
-        
+        long totalFilesSeen = 0;
+        long totalBytesSeen = 0;
+
         BatchStatus status = BatchStatus.FAILED;
-        
-        BatchRun batchRun;
+
+        List<UploadSummary> summaries = List.of();
+        Exception failure = null;
 
         try {
             UploadScanner scanner = new UploadScanner(uploadsRoot);
-            List<UploadSummary> summaries = scanner.scan();
-
-            summaries.forEach(System.out::println); //temp
+            summaries = scanner.scan();
 
             totalUsersSeen = summaries.size();
 
-            for(UploadSummary summary : summaries) {
+            for (UploadSummary summary : summaries) {
                 totalFilesSeen += summary.fileCount();
                 totalBytesSeen += summary.byteCount();
             }
 
-            //TODO: Add file-move stage and failure accounting.
-
-            batchEnd = LocalDateTime.now();
-            System.out.println("NAS Batch Job completed successfully.");
             status = BatchStatus.SUCCESS;
-
-            batchRun = new BatchRun(
-                    LocalDate.now(),
-                    batchStart, batchEnd,
-                    totalUsersSeen,
-                    totalFilesSeen, totalBytesSeen,
-                    totalFilesMoved, totalFilesFailed,
-                    status
-            );
-            
-            System.out.println(batchRun);
+            System.out.println("NAS Batch Job completed successfully.");
 
         } catch (Exception e) {
-            batchEnd = LocalDateTime.now();
+            failure = e;
             System.err.println("NAS Batch Job failed.");
 
-            batchRun = new BatchRun(
+        } finally {
+            batchEnd = LocalDateTime.now();
+
+            BatchRun batchRun = new BatchRun(
                     LocalDate.now(),
-                    batchStart, batchEnd,
+                    batchStart,
+                    batchEnd,
                     totalUsersSeen,
-                    totalFilesSeen, totalBytesSeen,
-                    totalFilesMoved, totalFilesFailed,
+                    totalFilesSeen,
+                    totalBytesSeen,
                     status
-            );            
-            
-            e.printStackTrace();
-            System.out.println(batchRun);
-            
-            System.exit(2);
+            );
+
+            try {
+                PersistenceService persistenceService = new PersistenceService();
+                persistenceService.persist(batchRun, summaries);
+            } catch (Exception e) {
+                System.err.println("Failed to persist batch results.");
+                e.printStackTrace();
+            }
         }
 
-        //TODO: To implement persistence to db.
+        if (status == BatchStatus.FAILED) {
+            if (failure != null) {
+                failure.printStackTrace();
+            }
+            System.exit(2);
+        }
     }
 }
