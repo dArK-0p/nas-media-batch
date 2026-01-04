@@ -1,29 +1,39 @@
 package com.darkop.nas.app;
 
 import com.darkop.nas.fs.UploadScanner;
-import com.darkop.nas.fs.UploadSummary;
+import com.darkop.nas.model.UploadSummary;
 
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
+
     public static void main(String[] args) {
         System.out.println("NAS Batch Job starting...");
-        String path = args[0];
 
-        try{
-            Path uploadsRoot = Paths.get(path);
-            boolean validPath = Files.exists(uploadsRoot) && Files.isDirectory(uploadsRoot);
-            if (!validPath) throw new Exception("Path does not exist or is not a directory.");
-            List<UploadSummary> us = new UploadScanner(uploadsRoot).getUploadSummary();
-            us.forEach(System.out::println);
-        } catch(InvalidPathException E) {
-            System.out.println("Invalid Path. Could not convert.\nExiting...");
-        } catch (Exception E) {
-            System.out.println(E.getMessage() + "\nPath provided = " + path);
+        if (args.length != 1) {
+            System.err.println("Usage: java -jar nas-media-batch.jar <uploads-root>");
+            System.exit(1);
+        }
+
+        Path uploadsRoot = Path.of(args[0]);
+        LocalDateTime batchStart = LocalDateTime.now();
+
+        try {
+            UploadScanner scanner = new UploadScanner(uploadsRoot);
+            List<UploadSummary> summaries = scanner.scan();
+
+            summaries.forEach(System.out::println);
+
+            LocalDateTime batchEnd = LocalDateTime.now();
+            System.out.println("NAS Batch Job completed successfully.");
+            System.out.println("Batch duration: " + java.time.Duration.between(batchStart, batchEnd));
+
+        } catch (Exception e) {
+            System.err.println("NAS Batch Job failed.");
+            e.printStackTrace();
+            System.exit(2);
         }
     }
 }
