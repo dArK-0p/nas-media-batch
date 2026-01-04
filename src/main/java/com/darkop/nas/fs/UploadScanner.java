@@ -53,8 +53,7 @@ public class UploadScanner {
             return;
         }
 
-        long fileCount = 0;
-        long totalBytes = 0;
+        long fileCount = 0, byteCount = 0;
 
         try (Stream<Path> paths = Files.walk(incomingDir)) {
             for (Path path : (Iterable<Path>) paths::iterator) {
@@ -65,7 +64,7 @@ public class UploadScanner {
 
                 if (Files.isRegularFile(path)) {
                     fileCount++;
-                    totalBytes += Files.size(path);
+                    byteCount += Files.size(path);
                 }
             }
         } catch (IOException e) {
@@ -79,6 +78,6 @@ public class UploadScanner {
             return;
         }
 
-        results.add(new UploadSummary(username, fileCount, totalBytes));
+        results.add(new UploadSummary(username, fileCount, byteCount));
     }
 }
