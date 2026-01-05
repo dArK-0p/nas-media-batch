@@ -1,6 +1,6 @@
 package com.darkop.nas.fs;
 
-import com.darkop.nas.model.UploadSummary;
+import com.darkop.nas.model.records.UploadSummary;
 
 import java.io.IOException;
 import java.nio.file.*;

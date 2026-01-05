@@ -2,9 +2,9 @@ package com.darkop.nas.app;
 
 import com.darkop.nas.db.PersistenceService;
 import com.darkop.nas.fs.UploadScanner;
-import com.darkop.nas.model.BatchRun;
-import com.darkop.nas.model.BatchStatus;
-import com.darkop.nas.model.UploadSummary;
+import com.darkop.nas.model.records.BatchRun;
+import com.darkop.nas.model.enums.BatchStatus;
+import com.darkop.nas.model.records.UploadSummary;
 
 import java.nio.file.Path;
 import java.time.LocalDate;

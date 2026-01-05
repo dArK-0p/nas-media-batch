@@ -1,4 +1,6 @@
-package com.darkop.nas.model;
+package com.darkop.nas.model.records;
+
+import com.darkop.nas.model.enums.BatchStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

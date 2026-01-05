@@ -1,7 +1,7 @@
 package com.darkop.nas.db;
 
-import com.darkop.nas.model.BatchRun;
-import com.darkop.nas.model.UploadSummary;
+import com.darkop.nas.model.records.BatchRun;
+import com.darkop.nas.model.records.UploadSummary;
 
 import java.sql.Connection;
 import java.sql.SQLException;

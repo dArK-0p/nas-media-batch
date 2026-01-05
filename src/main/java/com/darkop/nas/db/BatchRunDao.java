@@ -1,6 +1,6 @@
 package com.darkop.nas.db;
 
-import com.darkop.nas.model.BatchRun;
+import com.darkop.nas.model.records.BatchRun;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +15,7 @@ public class BatchRunDao {
             run_date,
             start_time,
             end_time,
-            total_users,
+            total_users_seen,
             total_files_seen,
             total_bytes_seen,
             status

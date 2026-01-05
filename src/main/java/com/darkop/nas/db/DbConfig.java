@@ -1,5 +1,7 @@
 package com.darkop.nas.db;
 
+import com.darkop.nas.config.NasConfig;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,13 +10,6 @@ public final class DbConfig {
 
     // Prevent instantiation
     private DbConfig() {}
-
-    // TODO: Externalize later (env vars / config file)
-    private static final String JDBC_URL =
-            "jdbc:postgresql://localhost:5432/nas_db";
-
-    private static final String DB_USER = "nas_admin";
-    private static final String DB_PASSWORD = "mcpojohn117";
 
     static {
         try {
@@ -28,9 +23,9 @@ public final class DbConfig {
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
-                JDBC_URL,
-                DB_USER,
-                DB_PASSWORD
+                NasConfig.dbUrl(),
+                NasConfig.dbUser(),
+                NasConfig.dbPassword()
         );
     }
 }
