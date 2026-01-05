@@ -1,5 +1,6 @@
 package com.darkop.nas.app;
 
+import com.darkop.nas.config.NasConfig;
 import com.darkop.nas.db.DbConfig;
 import com.darkop.nas.db.PersistenceService;
 import com.darkop.nas.fs.FileSorter;
@@ -19,13 +20,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        if (args.length != 2) {
-            System.err.println("Usage: java -jar nas-media-batch.jar <uploads-root> <media-root>");
-            System.exit(1);
-        }
-
-        Path uploadsRoot = Path.of(args[0]);
-        Path mediaRoot = Path.of(args[1]);
+        Path uploadsRoot = Path.of(NasConfig.uploadsRoot());
+        Path mediaRoot   = Path.of(NasConfig.mediaRoot());
 
         LocalDateTime batchStart = LocalDateTime.now();
         LocalDateTime batchEnd;

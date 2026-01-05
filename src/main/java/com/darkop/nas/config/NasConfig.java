@@ -40,6 +40,19 @@ public final class NasConfig {
         return require("db.password");
     }
 
+    public static String uploadsRoot() {
+        return require("uploads.root");
+    }
+
+    public static String mediaRoot() {
+        return require("media.root");
+    }
+
+    public static String quarantineRoot() {
+        return require("quarantine.root");
+    }
+
+
     private static String require(String key) {
         String value = PROPS.getProperty(key);
         if (value == null || value.isBlank()) {
