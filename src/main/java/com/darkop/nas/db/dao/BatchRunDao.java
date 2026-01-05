@@ -2,28 +2,24 @@ package com.darkop.nas.db.dao;
 
 import com.darkop.nas.model.records.BatchRun;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class BatchRunDao {
 
     private static final String INSERT_SQL = """
-        INSERT INTO batch_run (
-            run_date,
-            start_time,
-            end_time,
-            total_users_seen,
-            total_files_seen,
-            total_bytes_seen,
-            total_files_sorted,
-            total_files_failed,
-            status
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+            INSERT INTO batch_run (
+                run_date,
+                start_time,
+                end_time,
+                total_users_seen,
+                total_files_seen,
+                total_bytes_seen,
+                total_files_sorted,
+                total_files_failed,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
     private final Connection connection;
 
@@ -32,8 +28,7 @@ public class BatchRunDao {
     }
 
     public long insert(BatchRun batchRun) throws SQLException {
-        try (PreparedStatement ps =
-                     connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setObject(1, batchRun.runDate());
 

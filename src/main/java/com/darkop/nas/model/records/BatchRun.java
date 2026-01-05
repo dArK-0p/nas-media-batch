@@ -5,19 +5,13 @@ import com.darkop.nas.model.enums.BatchStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record BatchRun(
-        LocalDate runDate,
+public record BatchRun(LocalDate runDate,
 
-        LocalDateTime startTime,
-        LocalDateTime endTime,
+                       LocalDateTime startTime, LocalDateTime endTime,
 
-        int totalUsersSeen,
-        long totalFilesSeen,
-        long totalBytesSeen,
+                       int totalUsersSeen, long totalFilesSeen, long totalBytesSeen,
 
-        long totalFilesSorted,
-        long totalFilesFailed,
+                       long totalFilesSorted, long totalFilesFailed,
 
-        BatchStatus status
-) {
+                       BatchStatus status) {
 }

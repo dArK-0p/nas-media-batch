@@ -1,13 +1,15 @@
 package com.darkop.nas.fs;
 
-import com.darkop.nas.model.records.FileFailure;
-import com.darkop.nas.model.records.SortResult;
 import com.darkop.nas.model.enums.FileFailureAction;
 import com.darkop.nas.model.enums.FileFailureStage;
 import com.darkop.nas.model.enums.FileFailureType;
+import com.darkop.nas.model.records.FileFailure;
+import com.darkop.nas.model.records.SortResult;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -30,10 +32,7 @@ public class FileSorter {
         List<SortResult> results = new ArrayList<>();
 
         try (Stream<Path> users = Files.list(uploadsRoot)) {
-            users.filter(Files::isDirectory)
-                    .forEach(userDir ->
-                            results.add(sortUser(userDir))
-                    );
+            users.filter(Files::isDirectory).forEach(userDir -> results.add(sortUser(userDir)));
         } catch (IOException e) {
             throw new RuntimeException("Failed to list uploads root: " + uploadsRoot, e);
         }
@@ -62,23 +61,15 @@ public class FileSorter {
         }
 
         try (Stream<Path> paths = Files.walk(incoming)) {
-            List<Path> sources = paths
-                    .filter(Files::isRegularFile)
-                    .filter(p -> !Files.isSymbolicLink(p))
-                    .toList();
+            List<Path> sources = paths.filter(Files::isRegularFile).filter(p -> !Files.isSymbolicLink(p)).toList();
 
             for (Path source : sources) {
                 try {
                     long size = Files.size(source);
 
-                    YearMonth ym = YearMonth.from(
-                            Files.getLastModifiedTime(source).toInstant()
-                                    .atZone(java.time.ZoneId.systemDefault())
-                    );
+                    YearMonth ym = YearMonth.from(Files.getLastModifiedTime(source).toInstant().atZone(java.time.ZoneId.systemDefault()));
 
-                    Path targetDir = mediaRoot
-                            .resolve(String.valueOf(ym.getYear()))
-                            .resolve(String.format("%02d", ym.getMonthValue()));
+                    Path targetDir = mediaRoot.resolve(String.valueOf(ym.getYear())).resolve(String.format("%02d", ym.getMonthValue()));
 
                     Files.createDirectories(targetDir);
 
@@ -90,47 +81,23 @@ public class FileSorter {
                     bytesSorted += size;
 
                 } catch (Exception ex) {
-                    failures.add(new FileFailure(
-                            username,
-                            source.toAbsolutePath().toString(),
-                            safeSize(source),
-                            FileFailureType.MOVE_FAILED,
-                            FileFailureStage.MOVE,
-                            FileFailureAction.QUARANTINED,
-                            LocalDateTime.now()
-                    ));
+                    failures.add(new FileFailure(username, source.toAbsolutePath().toString(), safeSize(source), FileFailureType.MOVE_FAILED, FileFailureStage.MOVE, FileFailureAction.QUARANTINED, LocalDateTime.now()));
 
                     quarantineFile(source, quarantine);
                 }
             }
         } catch (IOException e) {
-            failures.add(new FileFailure(
-                    username,
-                    incoming.toAbsolutePath().toString(),
-                    -1,
-                    FileFailureType.DIRECTORY_SCAN_FAILED,
-                    FileFailureStage.SCAN,
-                    FileFailureAction.SKIPPED,
-                    LocalDateTime.now()
-            ));
+            failures.add(new FileFailure(username, incoming.toAbsolutePath().toString(), -1, FileFailureType.DIRECTORY_SCAN_FAILED, FileFailureStage.SCAN, FileFailureAction.SKIPPED, LocalDateTime.now()));
         }
 
-        return new SortResult(
-                username,
-                filesSorted,
-                bytesSorted,
-                failures
-        );
+        return new SortResult(username, filesSorted, bytesSorted, failures);
     }
 
     private void quarantineFile(Path source, Path quarantineDir) {
         try {
-            Files.move(
-                    source,
-                    quarantineDir.resolve(source.getFileName()),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
-        } catch (IOException ignored) {}
+            Files.move(source, quarantineDir.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ignored) {
+        }
     }
 
     private long safeSize(Path path) {

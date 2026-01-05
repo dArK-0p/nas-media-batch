@@ -10,18 +10,18 @@ import java.util.List;
 public class FileFailureDao {
 
     private static final String INSERT_SQL = """
-        INSERT INTO file_failure (
-            run_id,
-            username,
-            file_path,
-            file_size_bytes,
-            failure_type,
-            failure_stage,
-            action_taken,
-            recorded_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+            INSERT INTO file_failure (
+                run_id,
+                username,
+                file_path,
+                file_size_bytes,
+                failure_type,
+                failure_stage,
+                action_taken,
+                recorded_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
     private final Connection connection;
 

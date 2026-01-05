@@ -2,5 +2,6 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/73b58dda-819f-48bb-ba23-872a25ab1167/console.sql" value="73b58dda-819f-48bb-ba23-872a25ab1167" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/darkop/nas/db/dao/UserDailyUploadDao.java" value="73b58dda-819f-48bb-ba23-872a25ab1167" />
   </component>
 </project>

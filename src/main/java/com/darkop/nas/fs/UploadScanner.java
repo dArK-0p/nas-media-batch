@@ -3,7 +3,8 @@ package com.darkop.nas.fs;
 import com.darkop.nas.model.records.UploadSummary;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,8 +16,8 @@ public class UploadScanner {
     /**
      * uploadsRoot is expected to have the structure:
      * uploadsRoot/
-     *   └── <username>/
-     *        └── incoming/
+     * └── <username>/
+     * └── incoming/
      */
 
     public UploadScanner(Path uploadsRoot) {
@@ -27,15 +28,11 @@ public class UploadScanner {
         List<UploadSummary> results = new ArrayList<>();
 
         if (!Files.isDirectory(uploadsRoot)) {
-            throw new IllegalStateException(
-                    "Uploads root does not exist or is not a directory: " + uploadsRoot
-            );
+            throw new IllegalStateException("Uploads root does not exist or is not a directory: " + uploadsRoot);
         }
 
         try (Stream<Path> userDirs = Files.list(uploadsRoot)) {
-            userDirs
-                    .filter(Files::isDirectory)
-                    .forEach(userDir -> scanUser(userDir, results));
+            userDirs.filter(Files::isDirectory).forEach(userDir -> scanUser(userDir, results));
         } catch (IOException e) {
             throw new RuntimeException("Failed to list uploads root: " + uploadsRoot, e);
         }
@@ -69,9 +66,7 @@ public class UploadScanner {
             }
         } catch (IOException e) {
             // Per-user failure isolation
-            System.err.println(
-                    "[WARN] Failed to scan uploads for user '" + username + "': " + e.getMessage()
-            );
+            System.err.println("[WARN] Failed to scan uploads for user '" + username + "': " + e.getMessage());
 
             // Still emit a row so batch logic remains deterministic
             results.add(new UploadSummary(username, 0, 0));

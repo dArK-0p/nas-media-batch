@@ -20,9 +20,7 @@ public class Main {
     public static void main(String[] args) {
 
         if (args.length != 2) {
-            System.err.println(
-                    "Usage: java -jar nas-media-batch.jar <uploads-root> <media-root>"
-            );
+            System.err.println("Usage: java -jar nas-media-batch.jar <uploads-root> <media-root>");
             System.exit(1);
         }
 
@@ -77,26 +75,11 @@ public class Main {
 
                 batchEnd = LocalDateTime.now();
 
-                BatchRun batchRun = new BatchRun(
-                        LocalDate.now(),
-                        batchStart,
-                        batchEnd,
-                        totalUsersSeen,
-                        totalFilesSeen,
-                        totalBytesSeen,
-                        totalFilesSorted,
-                        totalFilesFailed,
-                        status
-                );
+                BatchRun batchRun = new BatchRun(LocalDate.now(), batchStart, batchEnd, totalUsersSeen, totalFilesSeen, totalBytesSeen, totalFilesSorted, totalFilesFailed, status);
 
-                PersistenceService persistenceService =
-                        new PersistenceService(connection);
+                PersistenceService persistenceService = new PersistenceService(connection);
 
-                persistenceService.persistBatch(
-                        batchRun,
-                        uploadSummaries,
-                        sortResults
-                );
+                persistenceService.persistBatch(batchRun, uploadSummaries, sortResults);
             }
 
             System.exit(status == BatchStatus.SUCCESS ? 0 : 2);

@@ -10,16 +10,16 @@ import java.sql.SQLException;
 public class UserDailyUploadDao {
 
     private static final String INSERT_SQL = """
-        INSERT INTO user_daily_upload (
-            run_id,
-            username,
-            files_uploaded,
-            bytes_uploaded,
-            files_sorted,
-            files_failed
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-        """;
+            INSERT INTO user_daily_upload (
+                run_id,
+                username,
+                files_uploaded,
+                bytes_uploaded,
+                files_sorted,
+                files_failed
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
 
     private final Connection connection;
 
@@ -27,11 +27,7 @@ public class UserDailyUploadDao {
         this.connection = connection;
     }
 
-    public void insert(
-            long runId,
-            UploadSummary uploadSummary,
-            SortResult sortResult
-    ) throws SQLException {
+    public void insert(long runId, UploadSummary uploadSummary, SortResult sortResult) throws SQLException {
 
         try (PreparedStatement ps = connection.prepareStatement(INSERT_SQL)) {
 

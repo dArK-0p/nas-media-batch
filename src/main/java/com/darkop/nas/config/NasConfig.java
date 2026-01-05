@@ -8,9 +8,7 @@ public final class NasConfig {
     private static final Properties PROPS = new Properties();
 
     static {
-        try (InputStream is =
-                     NasConfig.class.getClassLoader()
-                             .getResourceAsStream("application.properties")) {
+        try (InputStream is = NasConfig.class.getClassLoader().getResourceAsStream("application.properties")) {
 
             if (is == null) {
                 throw new RuntimeException("application.properties not found on classpath");
