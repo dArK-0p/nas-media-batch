@@ -1,5 +1,6 @@
 package com.darkop.nas.config;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -8,7 +9,9 @@ public final class NasConfig {
     private static final Properties PROPS = new Properties();
 
     static {
-        try (InputStream is = NasConfig.class.getClassLoader().getResourceAsStream("application.properties")) {
+        String externalPath = System.getProperty("nas.config");
+
+        try (InputStream is = externalPath != null ? new FileInputStream(externalPath) : NasConfig.class.getClassLoader().getResourceAsStream("application.properties")) {
 
             if (is == null) {
                 throw new RuntimeException("application.properties not found on classpath");
