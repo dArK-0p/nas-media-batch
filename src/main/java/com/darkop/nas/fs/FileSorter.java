@@ -20,10 +20,12 @@ public class FileSorter {
 
     private final Path uploadsRoot;
     private final Path mediaRoot;
+    private final Path quarantineRoot;
 
-    public FileSorter(Path uploadsRoot, Path mediaRoot) {
+    public FileSorter(Path uploadsRoot, Path mediaRoot, Path quarantineRoot) {
         this.uploadsRoot = uploadsRoot;
         this.mediaRoot = mediaRoot;
+        this.quarantineRoot = quarantineRoot;
     }
 
     public List<SortResult> sort() {
@@ -43,7 +45,7 @@ public class FileSorter {
     private SortResult sortUser(Path userDir) {
         String username = userDir.getFileName().toString();
         Path incoming = userDir.resolve("incoming");
-        Path quarantine = userDir.resolve("quarantine");
+        Path quarantine = quarantineRoot.resolve(username);
 
         long filesSorted = 0;
         long bytesSorted = 0;
@@ -115,6 +117,10 @@ public class FileSorter {
 
         if (!Files.exists(mediaRoot) || !Files.isWritable(mediaRoot)) {
             throw new IllegalStateException("Media root invalid: " + mediaRoot);
+        }
+
+        if (!Files.exists(quarantineRoot) || !Files.isWritable(quarantineRoot)) {
+            throw new IllegalStateException("Quarantine root invalid: " + quarantineRoot);
         }
     }
 }

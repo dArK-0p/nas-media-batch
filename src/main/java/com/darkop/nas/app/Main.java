@@ -21,7 +21,8 @@ public class Main {
     public static void main(String[] args) {
 
         Path uploadsRoot = Path.of(NasConfig.uploadsRoot());
-        Path mediaRoot   = Path.of(NasConfig.mediaRoot());
+        Path mediaRoot = Path.of(NasConfig.mediaRoot());
+        Path quarantineRoot = Path.of(NasConfig.quarantineRoot());
 
         LocalDateTime batchStart = LocalDateTime.now();
         LocalDateTime batchEnd;
@@ -53,7 +54,7 @@ public class Main {
                 }
 
                 // B — Sort files
-                FileSorter sorter = new FileSorter(uploadsRoot, mediaRoot);
+                FileSorter sorter = new FileSorter(uploadsRoot, mediaRoot, quarantineRoot);
                 sortResults = sorter.sort();
 
                 for (SortResult sr : sortResults) {
