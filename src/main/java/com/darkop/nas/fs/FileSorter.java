@@ -92,6 +92,8 @@ public class FileSorter {
             failures.add(new FileFailure(username, incoming.toAbsolutePath().toString(), -1, FileFailureType.DIRECTORY_SCAN_FAILED, FileFailureStage.SCAN, FileFailureAction.SKIPPED, LocalDateTime.now()));
         }
 
+        cleanupEmptyDirectories(incoming);
+
         return new SortResult(username, filesSorted, bytesSorted, failures);
     }
 
@@ -123,4 +125,27 @@ public class FileSorter {
             throw new IllegalStateException("Quarantine root invalid: " + quarantineRoot);
         }
     }
+
+    private void cleanupEmptyDirectories(Path root) {
+        try (Stream<Path> walk = Files.walk(root)) {
+
+            walk
+                    .filter(Files::isDirectory)
+                    // deepest directories first
+                    .sorted((a, b) -> b.getNameCount() - a.getNameCount())
+                    .forEach(dir -> {
+                        try (Stream<Path> contents = Files.list(dir)) {
+                            if (contents.findAny().isEmpty()) {
+                                Files.delete(dir);
+                            }
+                        } catch (IOException ignored) {
+                            // deliberately ignored — cleanup must never fail the batch
+                        }
+                    });
+
+        } catch (IOException ignored) {
+            // deliberately ignored
+        }
+    }
+
 }
