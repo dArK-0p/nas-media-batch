@@ -7,10 +7,17 @@ import java.time.LocalDateTime;
 
 public record BatchRun(
         LocalDate runDate,
+
         LocalDateTime startTime,
         LocalDateTime endTime,
-        int totalUsers,
+
+        int totalUsersSeen,
         long totalFilesSeen,
         long totalBytesSeen,
+
+        long totalFilesSorted,
+        long totalFilesFailed,
+
         BatchStatus status
-) {}
+) {
+}

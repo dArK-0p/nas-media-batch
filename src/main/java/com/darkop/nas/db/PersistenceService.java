@@ -1,33 +1,88 @@
 package com.darkop.nas.db;
 
-import com.darkop.nas.model.records.BatchRun;
-import com.darkop.nas.model.records.UploadSummary;
+import com.darkop.nas.db.dao.*;
+import com.darkop.nas.model.records.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PersistenceService {
 
-    public void persist(BatchRun batchRun, List<UploadSummary> summaries) throws SQLException {
+    private final Connection connection;
 
-        try (Connection connection = DbConfig.getConnection()) {
+    public PersistenceService(Connection connection) {
+        this.connection = connection;
+    }
 
+    public void persistBatch(
+            BatchRun batchRun,
+            List<UploadSummary> uploadSummaries,
+            List<SortResult> sortResults
+    ) throws SQLException {
+
+        try {
             connection.setAutoCommit(false);
 
-            try {
-                BatchRunDao batchRunDao = new BatchRunDao(connection);
-                long runId = batchRunDao.save(batchRun);
+            // 1. Persist batch run
+            BatchRunDao batchRunDao = new BatchRunDao(connection);
+            long runId = batchRunDao.insert(batchRun);
 
-                UserDailyUploadDao userDailyUploadDao = new UserDailyUploadDao(connection);
-                userDailyUploadDao.save(runId, summaries);
+            // 2. Persist per-user upload + sort summary
+            UserDailyUploadDao userDailyUploadDao =
+                    new UserDailyUploadDao(connection);
 
-                connection.commit();
+            Map<String, SortResult> sortResultByUser =
+                    sortResults.stream()
+                            .collect(Collectors.toMap(
+                                    SortResult::username,
+                                    sr -> sr
+                            ));
 
-            } catch (Exception e) {
-                connection.rollback();
-                throw e;
+            for (UploadSummary uploadSummary : uploadSummaries) {
+
+                SortResult sortResult =
+                        sortResultByUser.get(uploadSummary.username());
+
+                if (sortResult == null) {
+                    throw new IllegalStateException(
+                            "Missing SortResult for user: " + uploadSummary.username()
+                    );
+                }
+
+                userDailyUploadDao.insert(
+                        runId,
+                        uploadSummary,
+                        sortResult
+                );
             }
+
+            // 3. Collect and persist file failures (if any)
+            List<FileFailure> allFailures = new ArrayList<>();
+
+            for (SortResult sortResult : sortResults) {
+                if (sortResult.failures() != null) {
+                    allFailures.addAll(sortResult.failures());
+                }
+            }
+
+            if (!allFailures.isEmpty()) {
+                FileFailureDao fileFailureDao =
+                        new FileFailureDao(connection);
+                fileFailureDao.insertAll(runId, allFailures);
+            }
+
+            connection.commit();
+
+        } catch (Exception e) {
+            connection.rollback();
+            throw e;
+
+        } finally {
+            connection.setAutoCommit(true);
         }
     }
 }

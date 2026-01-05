@@ -1,4 +1,4 @@
-package com.darkop.nas.db;
+package com.darkop.nas.db.dao;
 
 import com.darkop.nas.model.records.BatchRun;
 
@@ -18,9 +18,11 @@ public class BatchRunDao {
             total_users_seen,
             total_files_seen,
             total_bytes_seen,
+            total_files_sorted,
+            total_files_failed,
             status
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
     private final Connection connection;
@@ -29,17 +31,24 @@ public class BatchRunDao {
         this.connection = connection;
     }
 
-    public long save(BatchRun batchRun) throws SQLException {
+    public long insert(BatchRun batchRun) throws SQLException {
         try (PreparedStatement ps =
                      connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setObject(1, batchRun.runDate());
+
             ps.setObject(2, batchRun.startTime());
             ps.setObject(3, batchRun.endTime());
-            ps.setInt(4, batchRun.totalUsers());
+
+            ps.setInt(4, batchRun.totalUsersSeen());
+
             ps.setLong(5, batchRun.totalFilesSeen());
             ps.setLong(6, batchRun.totalBytesSeen());
-            ps.setString(7, batchRun.status().name());
+
+            ps.setLong(7, batchRun.totalFilesSorted());
+            ps.setLong(8, batchRun.totalFilesFailed());
+
+            ps.setString(9, batchRun.status().name());
 
             ps.executeUpdate();
 

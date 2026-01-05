@@ -6,5 +6,5 @@ public record SortResult(
         String username,
         long filesSorted,
         long filesFailed,
-        List<FileFailure> failureLog
+        List<FileFailure> failures
 ) {}
