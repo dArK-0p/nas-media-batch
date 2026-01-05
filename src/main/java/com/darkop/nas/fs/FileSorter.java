@@ -129,11 +129,9 @@ public class FileSorter {
     private void cleanupEmptyDirectories(Path root) {
         try (Stream<Path> walk = Files.walk(root)) {
 
-            walk
-                    .filter(Files::isDirectory)
+            walk.filter(Files::isDirectory)
                     // deepest directories first
-                    .sorted((a, b) -> b.getNameCount() - a.getNameCount())
-                    .forEach(dir -> {
+                    .sorted((a, b) -> b.getNameCount() - a.getNameCount()).forEach(dir -> {
                         try (Stream<Path> contents = Files.list(dir)) {
                             if (contents.findAny().isEmpty()) {
                                 Files.delete(dir);
